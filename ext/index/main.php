@@ -250,7 +250,14 @@ class Index extends Extension
             $seed = $matches[1];
             Image::$order_sql = "RAND($seed)";
             $event->add_querylet(new Querylet("1=1")); //small hack to avoid metatag being treated as normal tag
-        }
+        } elseif (preg_match("/^order[=|:]fullrandom$/i", $event->term, $matches)) {
+            //order[=|:]fullrandom that generates a new seed every day, meaning you get a new randomized list every day, without using a manual seed.
+            //useful if you want to set your frontpage to "/post/list/order%3Dfullrandom/1" so that your visitors will get a dynamic feel even
+            //if you're not uploading a lot of material
+	    $seed = date("Ymd");
+	    Image::$order_sql = "RAND($seed)";
+            $event->add_querylet(new Querylet("1=1"));
+	}
 
         $this->stpen++;
     }
